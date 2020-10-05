@@ -65,6 +65,7 @@ resource "azurerm_app_service" "spacegame_dev" {
 
   site_config {
     linux_fx_version = "DOCKER|${var.container_image_path}"
+    always_on        = "true"
   }
 }
 
