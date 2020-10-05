@@ -29,9 +29,24 @@ variable "app_service_name_prefix" {
   description = "The beginning part of your App Service host name"
 }
 
-variable "container_image_path" {
-  default = "registry/image-name:latest"
-  description = "The path of container image"
+variable "container_registry_url" {
+  default = "registry"
+  description = "The url of container registry"
+}
+
+variable "container_image_name" {
+  default = "image"
+  description = "The name of container image"
+}
+
+variable "container_registry_username" {
+  default = "username"
+  description = "The username of container registry"
+}
+
+variable "container_registry_password" {
+  default = "password"
+  description = "The password of container registry"
 }
 
 resource "random_integer" "app_service_name_suffix" {
@@ -64,12 +79,15 @@ resource "azurerm_app_service" "spacegame_dev" {
   app_service_plan_id = azurerm_app_service_plan.spacegame.id
 
   site_config {
-    linux_fx_version = "DOCKER|${var.container_image_path}"
+    linux_fx_version = "DOCKER|${var.container_registry_url}/${var.container_image_name}:latest"
     always_on        = "true"
   }
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+    "DOCKER_REGISTRY_SERVER_URL"          = "${var.container_registry_url}"
+    "DOCKER_REGISTRY_SERVER_USERNAME"     = "${var.container_registry_username}"
+    "DOCKER_REGISTRY_SERVER_PASSWORD"     = "${var.container_registry_password}"
   }
 }
 

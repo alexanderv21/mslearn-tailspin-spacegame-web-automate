@@ -43,7 +43,10 @@ stages:
 
         # Write terraform.tfvars.
         echo 'resource_group_location = "'$(ResourceGroupLocation)'"' | tee terraform.tfvars
-        echo 'container_image_path = "'$(RegistryName)/$(webRepository):latest'"' | tee -a terraform.tfvars
+        echo 'container_registry_url = "'$(RegistryName)'"' | tee -a terraform.tfvars
+        echo 'container_registry_username = "'$(RegistryUsername)'"' | tee -a terraform.tfvars
+        echo 'container_registry_password = "'$(RegistryPassword)'"' | tee -a terraform.tfvars
+        echo 'container_image_name = "'$(webRepository)'"' | tee -a terraform.tfvars
         # Write backend.tfvars.
         echo 'resource_group_name = "tf-storage-rg"' | tee backend.tfvars
         echo 'storage_account_name = "'$(StorageAccountName)'"' | tee -a backend.tfvars
