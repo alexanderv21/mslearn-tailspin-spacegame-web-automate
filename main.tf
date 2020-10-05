@@ -30,7 +30,7 @@ variable "app_service_name_prefix" {
 }
 
 variable "container_image_path" {
-  default = "tailspin-space-game-web"
+  default = "registry/image-name:latest"
   description = "The path of container image"
 }
 
@@ -62,10 +62,6 @@ resource "azurerm_app_service" "spacegame_dev" {
   location            = azurerm_resource_group.spacegame.location
   resource_group_name = azurerm_resource_group.spacegame.name
   app_service_plan_id = azurerm_app_service_plan.spacegame.id
-
-  app_settings {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
-  }
 
   site_config {
     linux_fx_version = "DOCKER|${var.container_image_path}"
