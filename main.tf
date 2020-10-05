@@ -68,8 +68,8 @@ resource "azurerm_app_service" "spacegame_dev" {
     always_on        = "true"
   }
 
-  identity {
-    type = "SystemAssigned"
+  app_settings = {
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
   }
 }
 
