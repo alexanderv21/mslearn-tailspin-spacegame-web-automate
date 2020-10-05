@@ -63,9 +63,17 @@ resource "azurerm_app_service" "spacegame_dev" {
   resource_group_name = azurerm_resource_group.spacegame.name
   app_service_plan_id = azurerm_app_service_plan.spacegame.id
 
+  app_settings {
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
+  }
+
   site_config {
     linux_fx_version = "DOCKER|${var.container_image_path}"
     always_on        = "true"
+  }
+
+  identity {
+    type = "SystemAssigned"
   }
 }
 
