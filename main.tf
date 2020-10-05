@@ -29,6 +29,11 @@ variable "app_service_name_prefix" {
   description = "The beginning part of your App Service host name"
 }
 
+variable "container_image_path" {
+  default = "tailspin-space-game-web"
+  description = "The path of container image"
+}
+
 resource "random_integer" "app_service_name_suffix" {
   min = 1000
   max = 9999
@@ -59,8 +64,7 @@ resource "azurerm_app_service" "spacegame_dev" {
   app_service_plan_id = azurerm_app_service_plan.spacegame.id
 
   site_config {
-    linux_fx_version = "DOTNETCORE|3.1"
-    app_command_line = "dotnet Tailspin.SpaceGame.Web.dll"
+    linux_fx_version = "DOCKER|${var.container_image_path}"
   }
 }
 
