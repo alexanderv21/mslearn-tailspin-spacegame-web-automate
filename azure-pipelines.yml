@@ -5,6 +5,7 @@ variables:
   buildConfiguration: 'Release'
   webRepository: 'web'
   tag: '$(Build.BuildId)'
+  imagePullSecret: 'secret'
 
 stages:
 - stage: 'Build'
@@ -30,7 +31,7 @@ stages:
   displayName: 'Deploy to the dev environment'
   dependsOn: Build
   jobs:
-  - job: Provision
+  - job: 'Provision_App_Service'
     displayName: 'Provision Azure App Service'
     pool:
       vmImage: 'ubuntu-18.04'
@@ -70,8 +71,8 @@ stages:
         ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
         ARM_TENANT_ID: $(ARM_TENANT_ID)
         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-  - job: 'Deploy'
-    displayName: 'Deploy the container'
+  - job: 'Deploy_App_Service'
+    displayName: 'Deploy to Azure App Service'
     dependsOn: Provision
     variables:
     - group: Release
@@ -85,3 +86,37 @@ stages:
        appName: $(WebAppNameDev)
        azureSubscription: 'Resource Manager - Tailspin - Space Game'
        imageName: $(RegistryName)/$(webRepository):$(build.buildId)
+  - deployment: 'Deploy_Kubernetes'
+    displayName: 'Deploy to Kuberenetes'
+    pool:
+      vmImage: 'ubuntu-18.04'
+    environment: 'spike.default'
+    variables:
+    - group: Release
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: manifests
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              dockerRegistryEndpoint: 'Container Registry Connection'
+              kubernetesServiceConnection: 'Kubernetes Cluster Connection'
+              namespace: 'default'
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: deploy
+              kubernetesServiceConnection: 'Kubernetes Cluster Connection'
+              namespace: 'default'
+              manifests: |
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(RegistryName)/$(webRepository):$(build.buildId)
