@@ -26,6 +26,8 @@ stages:
         containerRegistry: 'Container Registry Connection'
         tags: |
           $(tag)
+    - publish: '$(Build.SourcesDirectory)/manifests'
+      artifact: manifests
 
 - stage: 'Dev'
   displayName: 'Deploy to the dev environment'
@@ -97,6 +99,8 @@ stages:
       runOnce:
         deploy:
           steps:
+          - download: current
+            artifact: manifests
           - task: KubernetesManifest@0
             displayName: Create imagePullSecret
             inputs:
