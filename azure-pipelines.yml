@@ -73,11 +73,11 @@ stages:
         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
   - job: 'Deploy_App_Service'
     displayName: 'Deploy to Azure App Service'
-    dependsOn: Provision
+    dependsOn: Provision_App_Service
     variables:
     - group: Release
     - name: WebAppNameDev
-      value: $[ dependencies.Provision.outputs['RunTerraform.WebAppNameDev'] ]
+      value: $[ dependencies.Provision_App_Service.outputs['RunTerraform.WebAppNameDev'] ]
     pool:
       vmImage: 'ubuntu-18.04'
     steps:
